@@ -90,7 +90,7 @@ namespace energy_raport_app
             var selectedUser = userGrid.SelectedItem as User;
             if (selectedUser != null)
             {
-                var userScreen = new UserScreen(selectedUser);
+                var userScreen = new UserScreen(selectedUser, db);
                 userScreen.Show();
             }
         }

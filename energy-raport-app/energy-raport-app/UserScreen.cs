@@ -8,8 +8,9 @@ public class UserScreen : Form
 {
     private DbClass db;
 
-    public UserScreen(User user)
+    public UserScreen(User user, DbClass db)
     {
+        this.db = db;
 
         Title = "User Screen";
         ClientSize = new Size(400, 300);
@@ -72,7 +73,7 @@ public class UserScreen : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, "Fout bij importeren: " + ex.Message, MessageBoxType.Error);
+            MessageBox.Show(this, "Fout bij importeren: " + ex.Message + ex.StackTrace, MessageBoxType.Error);
         }
     }
 }
