@@ -1,5 +1,4 @@
-﻿namespace DB_Library;
-
+﻿namespace energy_raport_app;
 using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
@@ -8,10 +7,11 @@ public class DbClass
 {
     private string connectionString;
 
-    // Constructor voor het instellen van de connectiestring
-    public DbClass(string server, string database, string username, string password)
+    // database connectie string om met de mysql database te verbinden var connectString = "Server=localhost;Database=Huisarts;Uid=root;Pwd=;";
+    public DbClass(string connectionString)
     {
-        connectionString = $"Server={server};Database={database};Uid={username};Pwd={password};";
+        var connectString = "Server=localhost;Database=energydb;Uid=root;Pwd=;";
+        this.connectionString = connectionString;
     }
 
     // Methode om alle gebruikers uit de database op te halen

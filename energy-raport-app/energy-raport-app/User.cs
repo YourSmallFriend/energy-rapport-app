@@ -1,4 +1,6 @@
-namespace DB_Library;
+using System;
+
+namespace energy_raport_app;
 
 public partial class User
 {
