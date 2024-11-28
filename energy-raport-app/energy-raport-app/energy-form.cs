@@ -1,34 +1,23 @@
 using Eto.Forms;
 using Eto.Drawing;
-
 namespace energy_raport_app
 {
-    public class MainForm : Form
+    public class EnergyForm : Form
     {
-        public MainForm()
+        public EnergyForm()
         {
-            Title = "Login";
-            MinimumSize = new Size(300, 200);
-
-            var usernameLabel = new Label { Text = "Username:" };
-            var usernameTextBox = new TextBox();
-
-            var passwordLabel = new Label { Text = "Password:" };
-            var passwordTextBox = new PasswordBox();
-
-            var loginButton = new Button { Text = "Login" };
-            loginButton.Click += (sender, e) => HandleLogin(usernameTextBox.Text, passwordTextBox.Text);
+            Title = "Energy Raport";
+            MinimumSize = new Size(200, 200);
+            
+            var login = new Button { Text = "Login" };
 
             Content = new StackLayout
             {
                 Padding = 10,
                 Items =
                 {
-                    new StackLayoutItem(usernameLabel, HorizontalAlignment.Left),
-                    new StackLayoutItem(usernameTextBox, HorizontalAlignment.Stretch),
-                    new StackLayoutItem(passwordLabel, HorizontalAlignment.Left),
-                    new StackLayoutItem(passwordTextBox, HorizontalAlignment.Stretch),
-                    new StackLayoutItem(loginButton, HorizontalAlignment.Center)
+                    login,
+                    // add more controls here
                 }
             };
 
@@ -38,6 +27,7 @@ namespace energy_raport_app
             var aboutCommand = new Command { MenuText = "About..." };
             aboutCommand.Executed += (sender, e) => new AboutDialog().ShowDialog(this);
 
+            // create menu
             Menu = new MenuBar
             {
                 Items =
@@ -54,12 +44,6 @@ namespace energy_raport_app
                 QuitItem = quitCommand,
                 AboutItem = aboutCommand
             };
-        }
-
-        private void HandleLogin(string username, string password)
-        {
-            // Handle login logic here
-            MessageBox.Show($"Username: {username}\nPassword: {password}", "Login Info");
         }
     }
 }
