@@ -1,6 +1,8 @@
 using System;
 using Eto.Drawing;
 using Eto.Forms;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace energy_raport_app;
 
@@ -91,13 +93,25 @@ public class AddUserDialog
         dialog.ShowModal();
     }
 
+    private string HashPassword(string password)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+    }
+
     private void HandleAddUser(string name, string email, string password)
     {
+        var hashedPassword = HashPassword(password);
+
         var user = new User
         {
             Naam = name,
             Email = email,
-            wachtwoord_hash = password, // Ideally, you should hash the password before storing it
+            wachtwoord_hash = hashedPassword,
             AanmaakDatum = DateTime.Now
         };
 
