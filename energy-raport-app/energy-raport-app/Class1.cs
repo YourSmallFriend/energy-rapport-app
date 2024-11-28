@@ -25,7 +25,7 @@ public class DbClass
             {
                 connection.Open();
 
-                string query = "SELECT id, naam, email, aanmaakdatum FROM gebruikers";
+                string query = "SELECT id, naam, email,wachtwoord_hash, aanmaakdatum FROM gebruikers";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -37,6 +37,7 @@ public class DbClass
                                 Id = reader.GetInt32("id"),
                                 Naam = reader.GetString("naam"),
                                 Email = reader.GetString("email"),
+                                wachtwoord_hash = reader.GetString("wachtwoord_hash"),
                                 AanmaakDatum = reader.GetDateTime("aanmaakdatum")
                             });
                         }
@@ -50,6 +51,33 @@ public class DbClass
         }
 
         return users;
+    }
+
+    // Methode om een gebruiker toe te voegen aan de database
+    public void AddUser(User user)
+    {
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "INSERT INTO gebruikers (naam, email, wachtwoord_hash, aanmaakdatum) VALUES (@naam, @email, @wachtwoord_hash, @aanmaakdatum)";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@naam", user.Naam);
+                    command.Parameters.AddWithValue("@email", user.Email);
+                    command.Parameters.AddWithValue("@wachtwoord_hash", user.wachtwoord_hash);
+                    command.Parameters.AddWithValue("@aanmaakdatum", user.AanmaakDatum);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fout bij het toevoegen van gebruiker: " + ex.Message);
+        }
     }
 }
 

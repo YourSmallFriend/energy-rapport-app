@@ -1,16 +1,21 @@
 using Eto.Forms;
 using Eto.Drawing;
+using System.Linq;
 
 namespace energy_raport_app
 {
     public class MainForm : Form
     {
+        private DbClass db;
+
         public MainForm()
         {
+            db = new DbClass("Server=localhost;Database=energydb;Uid=root;Pwd=;");
+
             Title = "Login";
             MinimumSize = new Size(300, 200);
 
-            var usernameLabel = new Label { Text = "Username:" };
+            var usernameLabel = new Label { Text = "Email:" };
             var usernameTextBox = new TextBox();
 
             var passwordLabel = new Label { Text = "Password:" };
@@ -56,10 +61,42 @@ namespace energy_raport_app
             };
         }
 
-        private void HandleLogin(string username, string password)
+        private void HandleLogin(string email, string password)
         {
-            // Handle login logic here
-            MessageBox.Show($"Username: {username}\nPassword: {password}", "Login Info");
+            if (email == "admin" && password == "admin")
+            {
+                OpenAdminScreen();
+            }
+            else
+            {
+                var user = VerifyCredentials(email, password);
+                if (user != null)
+                {
+                    OpenUserAccount(user);
+                }
+                else
+                {
+                    MessageBox.Show("Invalid email or password", "Login Failed", MessageBoxButtons.OK, MessageBoxType.Error);
+                }
+            }
+        }
+
+        private User VerifyCredentials(string email, string password)
+        {
+            var users = db.GetUsers();
+            return users.FirstOrDefault(u => u.Email == email && u.wachtwoord_hash == password);
+        }
+
+        private void OpenUserAccount(User user)
+        {
+            MessageBox.Show($"Welcome {user.Naam}", "Login Successful");
+            // Open user account form or dashboard
+        }
+
+        private void OpenAdminScreen()
+        {
+            var adminScreen = new AdminScreen();
+            adminScreen.Show();
         }
     }
 }
