@@ -14,6 +14,8 @@ public class UserDashboard : Form
         MinimumSize = new Size(400, 400);
 
         var label = new Label { Text = $"Hello {_user.Naam}!" };
+        
+        //csv stroom/gas import button
 
         Content = new StackLayout
         {

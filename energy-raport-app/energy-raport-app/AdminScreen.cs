@@ -117,6 +117,7 @@ public class AddUserDialog
 
         var db = new DbClass("Server=localhost;Database=energydb;Uid=root;Pwd=;");
         db.AddUser(user);
+        MessageBox.Show("User added!");
     }
 
     public void ShowDialog(AdminScreen adminScreen)
