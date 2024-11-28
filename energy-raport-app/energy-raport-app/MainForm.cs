@@ -1,6 +1,9 @@
+using System;
 using Eto.Forms;
 using Eto.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace energy_raport_app
 {
@@ -83,14 +86,26 @@ namespace energy_raport_app
 
         private User VerifyCredentials(string email, string password)
         {
+            var hashedPassword = HashPassword(password);
             var users = db.GetUsers();
-            return users.FirstOrDefault(u => u.Email == email && u.wachtwoord_hash == password);
+            return users.FirstOrDefault(u => u.Email == email && u.wachtwoord_hash == hashedPassword);
+        }
+
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
         }
 
         private void OpenUserAccount(User user)
         {
-            MessageBox.Show($"Welcome {user.Naam}", "Login Successful");
             // Open user account form or dashboard
+            var userDashboard = new UserDashboard(user);
+            userDashboard.Show();
         }
 
         private void OpenAdminScreen()

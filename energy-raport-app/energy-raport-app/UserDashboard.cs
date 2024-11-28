@@ -1,15 +1,19 @@
-namespace energy_raport_app;
-using Eto.Forms;
+using energy_raport_app;
 using Eto.Drawing;
+using Eto.Forms;
 
-public class UserDashboard: Form
+public class UserDashboard : Form
 {
-    public UserDashboard()
+    private User _user;
+
+    public UserDashboard(User user)
     {
+        _user = user;
+
         Title = "User Dashboard";
         MinimumSize = new Size(400, 400);
 
-        var label = new Label { Text = "Hello User!" };
+        var label = new Label { Text = $"Hello {_user.Naam}!" };
 
         Content = new StackLayout
         {
