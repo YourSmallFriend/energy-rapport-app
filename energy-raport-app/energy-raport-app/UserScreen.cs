@@ -20,10 +20,10 @@ public class UserScreen : Form
 
         // Knoppen voor import
         var importElectricityButton = new Button { Text = "Importeer Stroom CSV" };
-        importElectricityButton.Click += ImportElectricityCsv;
+        importElectricityButton.Click += (sender, e) => ImportElectricityCsv(sender, e, user);
 
         var importGasButton = new Button { Text = "Importeer Gas CSV" };
-        importGasButton.Click += ImportGasCsv;
+        importGasButton.Click += (sender, e) => ImportGasCsv(sender, e, user);
 
         // Layout
         Content = new StackLayout
@@ -39,7 +39,7 @@ public class UserScreen : Form
         };
     }
 
-    private void ImportElectricityCsv(object sender, EventArgs e)
+   private void ImportElectricityCsv(object sender, EventArgs e, User user)
 {
     var openFileDialog = new OpenFileDialog
     {
@@ -64,9 +64,8 @@ public class UserScreen : Form
                 int standDal = int.Parse(values[2]);
                 int terugleveringNormaal = int.Parse(values[3]);
                 int terugleveringDal = int.Parse(values[4]);
-
-                // Voeg stroomgegevens toe voor de huidige gebruiker (bijvoorbeeld user.Id = 1)
-                db.AddElectricityData(1, opnameDatum, standNormaal, standDal, terugleveringNormaal, terugleveringDal);
+                // Voeg stroomgegevens toe voor de huidige gebruiker
+                db.AddElectricityData(user.Id, opnameDatum, standNormaal, standDal, terugleveringNormaal, terugleveringDal);
             }
 
             MessageBox.Show(this, "Stroomgegevens succesvol geïmporteerd!", MessageBoxType.Information);
@@ -78,7 +77,7 @@ public class UserScreen : Form
     }
 }
 
-private void ImportGasCsv(object sender, EventArgs e)
+private void ImportGasCsv(object sender, EventArgs e, User user)
 {
     var openFileDialog = new OpenFileDialog
     {
@@ -101,8 +100,8 @@ private void ImportGasCsv(object sender, EventArgs e)
                 DateTime opnameDatum = DateTime.Parse(values[0]);
                 int gasStand = int.Parse(values[1]);
 
-                // Voeg gasgegevens toe voor de huidige gebruiker (bijvoorbeeld user.Id = 1)
-                db.AddGasData(1, opnameDatum, gasStand);
+                // Voeg gasgegevens toe voor de huidige gebruiker
+                db.AddGasData(user.Id, opnameDatum, gasStand);
             }
 
             MessageBox.Show(this, "Gasgegevens succesvol geïmporteerd!", MessageBoxType.Information);
@@ -113,5 +112,4 @@ private void ImportGasCsv(object sender, EventArgs e)
         }
     }
 }
-
 }
