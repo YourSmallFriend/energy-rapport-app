@@ -5,11 +5,11 @@ using MySql.Data.MySqlClient;
 
 public class DbClass
 {
-    private string connectionString;
+    private static string connectionString;
 
     public DbClass(string connectionString)
     {
-        this.connectionString = connectionString;
+        DbClass.connectionString = connectionString;
     }
 
     // Methode om alle gebruikers uit de database op te halen
@@ -216,5 +216,43 @@ public class DbClass
         {
             Console.WriteLine("Fout bij het toevoegen van gasgegevens: " + ex.Message);
         }
+    }
+    
+    // Methode om gasgegevens op te halen uit de database
+    public static List<GasClass.GasData> GetGasData(int gebruikerId)
+    {
+        List<GasClass.GasData> gasData = new List<GasClass.GasData>();
+
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT gebruiker_id, opnamedatum, gas_stand FROM gasverbruik";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@gebruikerId", gebruikerId);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            gasData.Add(new GasClass.GasData
+                            {
+                                gebruiker_id = reader.GetInt32("gebruiker_id"),
+                                OpnameDatum = reader.GetDateTime("opnamedatum"),
+                                gas_stand = reader.GetInt32("gas_stand")
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fout bij het ophalen van gasgegevens: " + ex.Message);
+        }
+        return gasData;
     }
 }
