@@ -16,44 +16,88 @@ public class UserDashboard : Form
     {
         _user = user;
 
-        // Vensterinstellingen
-        Title = "User Dashboard";
-        MinimumSize = new Size(600, 400);
+    // Window settings
+    Title = "User Dashboard";
+    MinimumSize = new Size(600, 400);
 
-        // Welkomstlabel
-        var label = new Label
-        {
-            Text = $"Hello {_user.Naam}!",
-            Font = SystemFonts.Bold(14),
-            TextAlignment = TextAlignment.Center
-        };
+    // Welcome label
+    var label = new Label
+    {
+        Text = $"Hello {_user.Naam}!",
+        Font = SystemFonts.Bold(14),
+        TextAlignment = TextAlignment.Center
+    };
 
-        //Maak een grafiek voor de gas data van de gebruiker doe dit door de id van de gebruiker te vergelijken met de gebruiker id in de gas data
-        var gasData = DbClass.GetGasData(gebruikerId: _user.Id).Where(g => g.gebruiker_id == _user.Id).ToList();
-        var gasPlot = new PlotView
+    try
+    {
+        // Fetch gas data for the user
+        var gasData = DbClass.GetGasData(gebruiker_id: _user.Id).Where(g => g.gebruiker_id == _user.Id).ToList();
+
+        // Log the fetched data
+        Console.WriteLine("Fetched gas data:");
+        foreach (var data in gasData)
         {
-            Model = new PlotModel
+            Console.WriteLine($"Date: {data.opnamedatum}, Gas Stand: {data.gas_stand}");
+        }
+
+        // Check if there is gas data
+        if (gasData.Any())
+        {
+            var gasPlot = new PlotView
             {
-                Title = "Gas Usage",
-                Axes =
+                Model = new PlotModel
                 {
-                    new DateTimeAxis { Position = AxisPosition.Bottom, StringFormat = "dd/MM/yyyy" },
-                    new LinearAxis { Position = AxisPosition.Left, Title = "Gas Usage" }
-                },
-                Series =
-                {
-                    new LineSeries
+                    Title = "Gas Usage",
+                    Axes =
                     {
-                        Title = "Gas Usage",
-                        ItemsSource = gasData,
-                        DataFieldX = "OpnameDatum",
-                        DataFieldY = "gas_stand"
+                        new DateTimeAxis { Position = AxisPosition.Bottom, StringFormat = "dd/MM/yyyy" },
+                        new LinearAxis { Position = AxisPosition.Left, Title = "Gas Usage" }
+                    },
+                    Series =
+                    {
+                        new LineSeries
+                        {
+                            Title = "Gas Usage",
+                            ItemsSource = gasData,
+                            DataFieldX = "opnamedatum",
+                            DataFieldY = "gas_stand"
+                        }
                     }
                 }
-            }
-        };
-        
-        // Voeg inhoud toe aan de layout
+            };
+
+            // Add content to the layout
+            Content = new StackLayout
+            {
+                Padding = 10,
+                Spacing = 10,
+                Items =
+                {
+                    label,
+                    gasPlot
+                }
+            };
+        }
+        else
+        {
+            // Show a message if there is no gas data
+            Content = new StackLayout
+            {
+                Padding = 10,
+                Spacing = 10,
+                Items =
+                {
+                    label,
+                    new Label { Text = "Geen gasdata beschikbaar.", TextAlignment = TextAlignment.Center }
+                }
+            };
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show("Error: " + ex.Message);
+        MessageBox.Show("Stack Trace: " + ex.StackTrace);
+
         Content = new StackLayout
         {
             Padding = 10,
@@ -61,10 +105,10 @@ public class UserDashboard : Form
             Items =
             {
                 label,
-                gasPlot
+                new Label { Text = "Er is een fout opgetreden: " + ex.Message, TextAlignment = TextAlignment.Center }
             }
         };
-
+    }
         // Menubalk
         Menu = CreateMenu();
     }

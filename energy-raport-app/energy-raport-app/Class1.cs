@@ -160,7 +160,7 @@ public class DbClass
         }
     }
      // Methode om stroomgegevens in te voegen
-    public void AddElectricityData(int gebruikerId, DateTime opnameDatum, int standNormaal, int standDal, int terugleveringNormaal, int terugleveringDal)
+    public void AddElectricityData(int gebruiker_id, DateTime opnameDatum, int standNormaal, int standDal, int terugleveringNormaal, int terugleveringDal)
     {
         try
         {
@@ -170,10 +170,10 @@ public class DbClass
 
                 string query = @"INSERT INTO stroomverbruik 
                                 (gebruiker_id, opnamedatum, stand_normaal, stand_dal, teruglevering_normaal, teruglevering_dal) 
-                                VALUES (@gebruikerId, @opnameDatum, @standNormaal, @standDal, @terugleveringNormaal, @terugleveringDal)";
+                                VALUES (@gebruiker_id, @opnameDatum, @standNormaal, @standDal, @terugleveringNormaal, @terugleveringDal)";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@gebruikerId", gebruikerId);
+                    command.Parameters.AddWithValue("@gebruiker_id", gebruiker_id);
                     command.Parameters.AddWithValue("@opnameDatum", opnameDatum);
                     command.Parameters.AddWithValue("@standNormaal", standNormaal);
                     command.Parameters.AddWithValue("@standDal", standDal);
@@ -191,7 +191,7 @@ public class DbClass
     }
 
     // Methode om gasgegevens in te voegen
-    public void AddGasData(int gebruikerId, DateTime opnameDatum, int gasStand)
+    public void AddGasData(int gebruiker_id, DateTime opnameDatum, int gasStand)
     {
         try
         {
@@ -201,10 +201,10 @@ public class DbClass
 
                 string query = @"INSERT INTO gasverbruik 
                                 (gebruiker_id, opnamedatum, gas_stand) 
-                                VALUES (@gebruikerId, @opnameDatum, @gasStand)";
+                                VALUES (@gebruiker_id, @opnameDatum, @gasStand)";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@gebruikerId", gebruikerId);
+                    command.Parameters.AddWithValue("@gebruiker_id", gebruiker_id);
                     command.Parameters.AddWithValue("@opnameDatum", opnameDatum);
                     command.Parameters.AddWithValue("@gasStand", gasStand);
 
@@ -219,7 +219,7 @@ public class DbClass
     }
     
     // Methode om gasgegevens op te halen uit de database
-    public static List<GasClass.GasData> GetGasData(int gebruikerId)
+    public static List<GasClass.GasData> GetGasData(int gebruiker_id)
     {
         List<GasClass.GasData> gasData = new List<GasClass.GasData>();
 
@@ -229,10 +229,10 @@ public class DbClass
             {
                 connection.Open();
 
-                string query = "SELECT gebruiker_id, opnamedatum, gas_stand FROM gasverbruik";
+                string query = "SELECT gebruiker_id, opnamedatum, gas_stand";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@gebruikerId", gebruikerId);
+                    command.Parameters.AddWithValue("@gebruiker_id", gebruiker_id);
 
                     using (MySqlDataReader reader = command.ExecuteReader())
                     {
@@ -241,7 +241,7 @@ public class DbClass
                             gasData.Add(new GasClass.GasData
                             {
                                 gebruiker_id = reader.GetInt32("gebruiker_id"),
-                                OpnameDatum = reader.GetDateTime("opnamedatum"),
+                                opnamedatum = reader.GetDateTime("opnamedatum"),
                                 gas_stand = reader.GetInt32("gas_stand")
                             });
                         }

@@ -7,12 +7,12 @@ public class GasClass
     public class GasData
     {
         public int gebruiker_id { get; set; }
-        public DateTime OpnameDatum { get; set; }
+        public DateTime opnamedatum { get; set; }
         public int gas_stand { get; set; }
         
         public override string ToString()
         {
-            return $"ID: {gebruiker_id}, OpnameDatum: {OpnameDatum}, Stand: {gas_stand}";
+            return $"gebruiker_id: {gebruiker_id}, OpnameDatum: {opnamedatum}, Stand: {gas_stand}";
         }
     }
 }
