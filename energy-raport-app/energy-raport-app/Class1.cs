@@ -229,7 +229,7 @@ public class DbClass
             {
                 connection.Open();
 
-                string query = "SELECT gebruiker_id, opnamedatum, gas_stand";
+                string query = "SELECT opnamedatum, gas_stand FROM gasverbruik WHERE gebruiker_id = @gebruiker_id;";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@gebruiker_id", gebruiker_id);
@@ -240,7 +240,6 @@ public class DbClass
                         {
                             gasData.Add(new GasClass.GasData
                             {
-                                gebruiker_id = reader.GetInt32("gebruiker_id"),
                                 opnamedatum = reader.GetDateTime("opnamedatum"),
                                 gas_stand = reader.GetInt32("gas_stand")
                             });
@@ -253,6 +252,7 @@ public class DbClass
         {
             Console.WriteLine("Fout bij het ophalen van gasgegevens: " + ex.Message);
         }
+
         return gasData;
     }
 }

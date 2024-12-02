@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
         <RootNamespace>energy_raport_app.Wpf</RootNamespace>
+        <TargetFramework>net8.0-windows</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>

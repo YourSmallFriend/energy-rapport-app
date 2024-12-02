@@ -12,7 +12,7 @@ public class GasClass
         
         public override string ToString()
         {
-            return $"gebruiker_id: {gebruiker_id}, OpnameDatum: {opnamedatum}, Stand: {gas_stand}";
+            return $"gebruiker_id: {gebruiker_id}, opnameDatum: {opnamedatum}, stand: {gas_stand}";
         }
     }
 }
