@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using energy_raport_app;
 using Eto.Drawing;
 using Eto.Forms;
@@ -23,11 +24,15 @@ public class UserDashboard : Form
             TextAlignment = TextAlignment.Center
         };
 
-        // WebView control for displaying HTML content
+        // WebView control for Google Chart
         var webView = new WebView
         {
             Size = new Size(900, 500)
         };
+
+        // Load the HTML file
+        var htmlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "chart.html");
+        webView.Url = new Uri("file:///C:/Users/samuel/OneDrive/Documenten/GitHub/energy-rapport-app/energy-raport-app/energy-raport-app/chart.html");
 
         // Add content to the layout
         Content = new StackLayout
@@ -43,44 +48,6 @@ public class UserDashboard : Form
 
         // Menubalk
         Menu = CreateMenu();
-        webView.LoadHtml(GenerateHelloWorldHtml());
-    }
-    private string GenerateHelloWorldHtml()
-    {
-        return @"
-        
-        <!DOCTYPE html>
-<html>
-  <head>
-    <title>ECharts Example</title>
-    <script src=""https://cdn.jsdelivr.net/npm/echarts@5.0.2/dist/echarts.min.js""></script>
-  </head>
-  <body>
-    <div id=""echart"" style=""width: 600px; height: 400px;""></div>
-    <script>
-      var myChart = echarts.init(document.getElementById('echart'));
-
-      var option = {
-        title: {
-          text: 'Company Performance'
-        },
-        xAxis: {
-          type: 'category',
-          data: ['2013', '2014', '2015', '2016']
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: [{
-          data: [1000, 1170, 660, 1030],
-          type: 'line'
-        }]
-      };
-
-      myChart.setOption(option);
-    </script>
-  </body>
-</html>";
     }
 
     private MenuBar CreateMenu()
