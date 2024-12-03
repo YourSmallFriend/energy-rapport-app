@@ -218,7 +218,7 @@ public class DbClass
         }
     }
     
-    // Methode om gasgegevens op te halen uit de database
+    // haal gas gegevens op 
     public static List<GasClass.GasData> GetGasData(int gebruiker_id)
     {
         List<GasClass.GasData> gasData = new List<GasClass.GasData>();
@@ -229,17 +229,16 @@ public class DbClass
             {
                 connection.Open();
 
-                string query = "SELECT opnamedatum, gas_stand FROM gasverbruik WHERE gebruiker_id = @gebruiker_id;";
+                string query = "SELECT gebruiker_id, opnamedatum, gas_stand FROM gasverbruik";
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@gebruiker_id", gebruiker_id);
-
                     using (MySqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             gasData.Add(new GasClass.GasData
                             {
+                                gebruiker_id = reader.GetInt32("gebruiker_id"),
                                 opnamedatum = reader.GetDateTime("opnamedatum"),
                                 gas_stand = reader.GetInt32("gas_stand")
                             });
@@ -254,5 +253,6 @@ public class DbClass
         }
 
         return gasData;
-    }
+    } 
+    
 }

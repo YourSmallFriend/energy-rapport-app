@@ -13,8 +13,6 @@
     <ItemGroup>
         <PackageReference Include="Eto.Platform.Gtk" Version="2.8.3"/>
         <PackageReference Include="MySql.Data" Version="9.1.0" />
-        <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
-        <PackageReference Include="OxyPlot.Eto" Version="2.1.1-ci.46" />
     </ItemGroup>
 
 </Project>

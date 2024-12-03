@@ -1,12 +1,7 @@
 using System;
-using System.Linq;
 using energy_raport_app;
 using Eto.Drawing;
 using Eto.Forms;
-using OxyPlot;
-using OxyPlot.Axes;
-using OxyPlot.Series;
-using OxyPlot.Eto;
 
 public class UserDashboard : Form
 {
@@ -28,90 +23,74 @@ public class UserDashboard : Form
             TextAlignment = TextAlignment.Center
         };
 
-        try
+        // WebView control for displaying HTML content
+        var webView = new WebView
         {
-            var gasData = DbClass.GetGasData(_user.Id);
-            if (gasData.Any())
-            {
-                var gasPlot = new PlotView
-                {
-                    Model = new PlotModel
-                    {
-                        Title = "Gas Usage",
-                        Axes =
-                        {
-                            new DateTimeAxis { Position = AxisPosition.Bottom, StringFormat = "dd/MM/yyyy" },
-                            new LinearAxis { Position = AxisPosition.Left, Title = "Gas Usage" }
-                        },
-                        Series =
-                        {
-                            new LineSeries
-                            {
-                                Title = "Gas Usage",
-                                ItemsSource = gasData,
-                                DataFieldX = "opnamedatum",
-                                DataFieldY = "gas_stand"
-                            }
-                        }
-                    }
-                };
+            Size = new Size(900, 500)
+        };
 
-                // Add content to the layout
-                Content = new StackLayout
-                {
-                    Padding = 10,
-                    Spacing = 10,
-                    Items =
-                    {
-                        label,
-                        gasPlot
-                    }
-                };
-            }
-            else
-            {
-                // Show a message if there is no gas data
-                Content = new StackLayout
-                {
-                    Padding = 10,
-                    Spacing = 10,
-                    Items =
-                    {
-                        label,
-                        new Label { Text = "Geen gasdata beschikbaar.", TextAlignment = TextAlignment.Center }
-                    }
-                };
-            }
-        }
-        catch (Exception ex)
+        // Add content to the layout
+        Content = new StackLayout
         {
-            MessageBox.Show("Error: " + ex.Message);
-            Content = new StackLayout
+            Padding = 10,
+            Spacing = 10,
+            Items =
             {
-                Padding = 10,
-                Spacing = 10,
-                Items =
-                {
-                    label,
-                    new Label { Text = "Er is een fout opgetreden: " + ex.Message, TextAlignment = TextAlignment.Center }
-                }
-            };
-        }
+                label,
+                webView
+            }
+        };
 
         // Menubalk
         Menu = CreateMenu();
+        webView.LoadHtml(GenerateHelloWorldHtml());
+    }
+    private string GenerateHelloWorldHtml()
+    {
+        return @"
+        
+        <!DOCTYPE html>
+<html>
+  <head>
+    <title>ECharts Example</title>
+    <script src=""https://cdn.jsdelivr.net/npm/echarts@5.0.2/dist/echarts.min.js""></script>
+  </head>
+  <body>
+    <div id=""echart"" style=""width: 600px; height: 400px;""></div>
+    <script>
+      var myChart = echarts.init(document.getElementById('echart'));
+
+      var option = {
+        title: {
+          text: 'Company Performance'
+        },
+        xAxis: {
+          type: 'category',
+          data: ['2013', '2014', '2015', '2016']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [{
+          data: [1000, 1170, 660, 1030],
+          type: 'line'
+        }]
+      };
+
+      myChart.setOption(option);
+    </script>
+  </body>
+</html>";
     }
 
     private MenuBar CreateMenu()
     {
-        // Maak menu-items
         var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
         quitCommand.Executed += (sender, e) => Application.Instance.Quit();
 
         var aboutCommand = new Command { MenuText = "About..." };
         aboutCommand.Executed += (sender, e) => new AboutDialog().ShowDialog(this);
 
-        // Maak de menubalk
         return new MenuBar
         {
             ApplicationItems =

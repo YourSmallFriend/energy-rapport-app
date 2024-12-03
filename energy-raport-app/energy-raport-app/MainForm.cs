@@ -103,9 +103,9 @@ namespace energy_raport_app
 
         private void OpenUserAccount(User user)
         {
-            // Open user account form or dashboard
-            var userDashboard = new UserDashboard(user);
-            userDashboard.Show();
+           //Open user account form or dashboard
+           var userDashboard = new UserDashboard(user);
+           userDashboard.Show();
         }
 
         private void OpenAdminScreen()
