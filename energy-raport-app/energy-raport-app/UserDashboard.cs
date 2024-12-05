@@ -19,6 +19,10 @@ namespace energy_raport_app
         private readonly Button _switchDataButton;
         private bool _showGasData = true;
 
+        // Fixed prices for gas and electricity
+        private const double GasPricePerUnit = 0.79; // Example price in euros per unit
+        private const double ElectricityPricePerUnit = 0.21; // Example price in euros per unit
+
         public UserDashboard(User user)
         {
             _user = user;
@@ -158,7 +162,7 @@ namespace energy_raport_app
             {
                 case "Day":
                     dataPoints = data
-                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand))
+                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand * (_showGasData ? GasPricePerUnit : ElectricityPricePerUnit)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
@@ -170,7 +174,7 @@ namespace energy_raport_app
                 case "Month":
                     dataPoints = data
                         .GroupBy(d => d.OpnameDatum.ToString("yyyy-MM"))
-                        .Select(g => new DateTimePoint(DateTime.Parse(g.Key + "-01"), g.Sum(d => d.Stand)))
+                        .Select(g => new DateTimePoint(DateTime.Parse(g.Key + "-01"), g.Sum(d => d.Stand) * (_showGasData ? GasPricePerUnit : ElectricityPricePerUnit)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
@@ -182,7 +186,7 @@ namespace energy_raport_app
                 case "Year":
                     dataPoints = data
                         .GroupBy(d => d.OpnameDatum.Year)
-                        .Select(g => new DateTimePoint(new DateTime(g.Key, 1, 1), g.Sum(d => d.Stand)))
+                        .Select(g => new DateTimePoint(new DateTime(g.Key, 1, 1), g.Sum(d => d.Stand) * (_showGasData ? GasPricePerUnit : ElectricityPricePerUnit)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
@@ -193,7 +197,7 @@ namespace energy_raport_app
 
                 default: // Default to "Day"
                     dataPoints = data
-                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand))
+                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand * (_showGasData ? GasPricePerUnit : ElectricityPricePerUnit)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {

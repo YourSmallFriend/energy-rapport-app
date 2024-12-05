@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Eto.Drawing;
@@ -12,6 +13,7 @@ namespace energy_raport_app
         private DbClass db;
         private GridView userGrid;
         private Button openUserScreenButton;
+        private TextBox searchTextBox;
 
         public AdminScreen()
         {
@@ -29,6 +31,10 @@ namespace energy_raport_app
             // Open user screen button
             openUserScreenButton = new Button { Text = "Open User Screen", Enabled = false };
             openUserScreenButton.Click += OpenUserScreenButton_Click;
+
+            // Search TextBox
+            searchTextBox = new TextBox { PlaceholderText = "Search users..." };
+            searchTextBox.TextChanged += SearchTextBox_TextChanged;
 
             // Create DataGrid
             userGrid = new GridView
@@ -50,6 +56,7 @@ namespace energy_raport_app
                 {
                     label,
                     addUserButton,
+                    searchTextBox,
                     openUserScreenButton,
                     userGrid
                 }
@@ -77,6 +84,13 @@ namespace energy_raport_app
                 QuitItem = quitCommand,
                 AboutItem = aboutCommand
             };
+        }
+
+        private void SearchTextBox_TextChanged(object sender, EventArgs e)
+        {
+            var searchText = searchTextBox.Text.ToLower();
+            var filteredUsers = GetUserList().Where(u => u.gebruikersnaam.ToLower().Contains(searchText) || u.Naam.ToLower().Contains(searchText)).ToList();
+            userGrid.DataStore = filteredUsers;
         }
 
         private void UserGrid_SelectionChanged(object sender, EventArgs e)
