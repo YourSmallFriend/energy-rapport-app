@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -15,6 +16,8 @@ namespace energy_raport_app
         private CartesianChart _cartesianChart;
         private readonly ComboBox _viewSelector;
         private readonly ComboBox _yearSelector;
+        private readonly Button _switchDataButton;
+        private bool _showGasData = true;
 
         public UserDashboard(User user)
         {
@@ -51,6 +54,14 @@ namespace energy_raport_app
             _viewSelector.SelectedIndexChanged += ViewSelector_SelectedIndexChanged;
             _viewSelector.SelectedIndex = 0; // Default to "Day"
 
+            // Switch data button
+            _switchDataButton = new Button
+            {
+                Text = "Switch to Electricity Data",
+                Dock = DockStyle.Top
+            };
+            _switchDataButton.Click += SwitchDataButton_Click;
+
             // Create the bar chart
             _cartesianChart = new CartesianChart
             {
@@ -59,6 +70,7 @@ namespace energy_raport_app
 
             // Add controls to the form
             Controls.Add(_cartesianChart);
+            Controls.Add(_switchDataButton);
             Controls.Add(_viewSelector);
             Controls.Add(_yearSelector);
             Controls.Add(label);
@@ -70,19 +82,19 @@ namespace energy_raport_app
 
         private void LoadYearSelector()
         {
-            var gasData = DbClass.GetGasData(_user.Id);
-            if (gasData == null || !gasData.Any()) return;
+            var data = _showGasData ? GasClass.ConvertGasData(DbClass.GetGasData(_user.Id)) : ElectroClass.ConvertElectricityData(DbClass.GetElectricityData(_user.Id));
+            if (data == null || !data.Any()) return;
 
             // Extract only the years that have data
-            var years = gasData
-                .Select(d => d.opnamedatum.Year) // Kies alleen de jaren
-                .Distinct() // Zorg ervoor dat elk jaar maar één keer voorkomt
-                .OrderByDescending(y => y) // Sorteer van recent naar oud
+            var years = data
+                .Select(d => d.OpnameDatum.Year) // Choose only the years
+                .Distinct() // Ensure each year appears only once
+                .OrderByDescending(y => y) // Sort from recent to old
                 .ToList();
 
             _yearSelector.Items.Clear();
 
-            // Voeg alleen jaren toe waarvoor data beschikbaar is
+            // Add only years for which data is available
             foreach (var year in years)
             {
                 _yearSelector.Items.Add(year);
@@ -91,10 +103,9 @@ namespace energy_raport_app
             // Set current year as default if available
             if (_yearSelector.Items.Count > 0)
             {
-                _yearSelector.SelectedIndex = 0; // Standaard het eerste jaar selecteren
+                _yearSelector.SelectedIndex = 0; // Default to the first year
             }
         }
-
 
         private void ViewSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -116,28 +127,28 @@ namespace energy_raport_app
             LoadChartData(selectedView, selectedYear);
         }
 
+        private void SwitchDataButton_Click(object sender, EventArgs e)
+        {
+            _showGasData = !_showGasData;
+            _switchDataButton.Text = _showGasData ? "Switch to Electricity Data" : "Switch to Gas Data";
+            LoadYearSelector();
+            LoadChartData(_viewSelector.SelectedItem.ToString(), (int)_yearSelector.SelectedItem);
+        }
+
         private void LoadChartData(string view, int year)
         {
-            var gasData = DbClass.GetGasData(_user.Id);
-            if (gasData == null || !gasData.Any())
+            List<EnergyData> data = _showGasData
+                ? GasClass.ConvertGasData(DbClass.GetGasData(_user.Id))
+                : ElectroClass.ConvertElectricityData(DbClass.GetElectricityData(_user.Id));
+
+            if (data == null || !data.Any())
             {
-                MessageBox.Show("No gas data available.");
+                MessageBox.Show(_showGasData ? "No gas data available." : "No electricity data available.");
                 return;
             }
 
             // Filter data by selected year
-            gasData = gasData.Where(d => d.opnamedatum.Year == year).ToList();
-
-            // Controleer alle datums in de dataset
-            foreach (var data in gasData)
-            {
-                // Als de datum ongeldige waarden heeft, toon deze in de debug
-                if (data.opnamedatum == null || data.opnamedatum.Year < 1900 || data.opnamedatum.Year > 9999)
-                {
-                    MessageBox.Show($"Invalid date encountered: {data.opnamedatum}. This record will be skipped.");
-                    gasData.Remove(data); // Verwijder de ongeldige datum
-                }
-            }
+            data = data.Where(d => d.OpnameDatum.Year == year).ToList();
 
             // Group data based on the selected view
             DateTimePoint[] dataPoints;
@@ -146,51 +157,50 @@ namespace energy_raport_app
             switch (view)
             {
                 case "Day":
-                    dataPoints = gasData
-                        .Select(d => new DateTimePoint(d.opnamedatum, d.gas_stand))
+                    dataPoints = data
+                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
                         var date = DateTime.FromOADate(value);
-                        return date.ToString("dd MMM yyyy"); // Bijvoorbeeld: "05 Dec 2024"
+                        return date.ToString("dd MMM yyyy");
                     };
                     break;
 
                 case "Month":
-                    dataPoints = gasData
-                        .GroupBy(d => d.opnamedatum.ToString("yyyy-MM"))
-                        .Select(g => new DateTimePoint(DateTime.Parse(g.Key + "-01"), g.Sum(d => d.gas_stand)))
+                    dataPoints = data
+                        .GroupBy(d => d.OpnameDatum.ToString("yyyy-MM"))
+                        .Select(g => new DateTimePoint(DateTime.Parse(g.Key + "-01"), g.Sum(d => d.Stand)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
                         var date = DateTime.FromOADate(value);
-                        return date.ToString("MMM yyyy"); // Bijvoorbeeld: "Dec 2024"
+                        return date.ToString("MMM yyyy");
                     };
                     break;
 
                 case "Year":
-                    dataPoints = gasData
-                        .GroupBy(d => d.opnamedatum.Year)
-                        .Select(g => new DateTimePoint(new DateTime(g.Key, 1, 1), g.Sum(d => d.gas_stand)))
+                    dataPoints = data
+                        .GroupBy(d => d.OpnameDatum.Year)
+                        .Select(g => new DateTimePoint(new DateTime(g.Key, 1, 1), g.Sum(d => d.Stand)))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
                         var date = DateTime.FromOADate(value);
-                        return date.ToString("yyyy"); // Bijvoorbeeld: "2024"
+                        return date.ToString("yyyy");
                     };
                     break;
 
-                default:  // day view
-                    dataPoints = gasData
-                        .Select(d => new DateTimePoint(d.opnamedatum, d.gas_stand))
+                default: // Default to "Day"
+                    dataPoints = data
+                        .Select(d => new DateTimePoint(d.OpnameDatum, d.Stand))
                         .ToArray();
                     xAxisLabelFormatter = value =>
                     {
                         var date = DateTime.FromOADate(value);
-                        return date.ToString("dd MMM yyyy"); // Bijvoorbeeld: "05 Dec 2024"
+                        return date.ToString("dd MMM yyyy");
                     };
                     break;
-                   
             }
 
             // Update the chart
@@ -208,12 +218,12 @@ namespace energy_raport_app
                 new Axis
                 {
                     Labeler = xAxisLabelFormatter,
-                    LabelsRotation = 15, // Draai de labels iets voor betere leesbaarheid
+                    LabelsRotation = 15,
                     TextSize = 12
                 }
             };
 
-            // Herteken de grafiek
+            // Redraw the chart
             _cartesianChart.Update();
         }
     }

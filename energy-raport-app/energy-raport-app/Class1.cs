@@ -255,4 +255,44 @@ public class DbClass
         return gasData;
     } 
     
+    // haal stroom gegevens op
+    public static List<ElectroClass.ElectricityData> GetElectricityData(int gebruiker_id)
+    {
+        List<ElectroClass.ElectricityData> electricityData = new List<ElectroClass.ElectricityData>();
+
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT gebruiker_id, opnamedatum, stand_normaal, stand_dal, teruglevering_normaal, teruglevering_dal FROM stroomverbruik";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            electricityData.Add(new ElectroClass.ElectricityData
+                            {
+                                Id = reader.GetInt32("gebruiker_id"),
+                                OpnameDatum = reader.GetDateTime("opnamedatum"),
+                                StandNormaal = reader.GetInt32("stand_normaal"),
+                                StandDal = reader.GetInt32("stand_dal"),
+                                TerugleveringNormaal = reader.GetInt32("teruglevering_normaal"),
+                                TerugleveringDal = reader.GetInt32("teruglevering_dal")
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Fout bij het ophalen van stroomgegevens: " + ex.Message);
+        }
+
+        return electricityData;
+    }
+    
 }
